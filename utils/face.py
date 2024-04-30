@@ -1,10 +1,8 @@
 import cv2 as cv
 import numpy as np
 
-def visualize(image, face, text, box_color=(0, 255, 0), text_color=(0, 0, 255), fps=None):
+def visualize(image, face, text, box_color=(0, 255, 0), text_color=(0, 0, 255)):
     output = image.copy()
-    if fps is not None:
-        cv.putText(output, 'FPS: {:.2f}'.format(fps), (0, 15), cv.FONT_HERSHEY_SIMPLEX, 0.5, text_color)
     if face is not None:
         bbox = face[0:4].astype(np.int32)
         cv.rectangle(output, (bbox[0], bbox[1]), (bbox[0]+bbox[2], bbox[1]+bbox[3]), box_color, 2)
