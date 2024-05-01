@@ -1,6 +1,9 @@
 import tkinter as tk
 from tkinter import ttk, messagebox, simpledialog
 
+import config
+
+
 class HomeUI(ttk.Frame):
     def __init__(self, master):
         super().__init__(master)
@@ -26,8 +29,8 @@ class HomeUI(ttk.Frame):
         self.master.show_frame(frameName)
 
     def admin_btn_click(self):
-        password = simpledialog.askstring("Admin Password", "Enter your password")
-        if password == 'admin':
+        password = simpledialog.askstring("Admin Password", "Enter your password", show="*")
+        if password == config.admin_password:
             self.master.show_frame(2)
 
     def exit(self):

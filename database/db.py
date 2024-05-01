@@ -1,20 +1,21 @@
 import sqlite3
 import numpy as np
 import datetime
-import cv2 as cv
+import config
 from tkinter import messagebox
 # Function to create database connection
-def create_connection(db_file):
+def create_connection():
     conn = None
     try:
-        conn = sqlite3.connect(db_file)
+        conn = sqlite3.connect(config.database_str)
         return conn
     except sqlite3.Error as err:
         print(err)
     return conn
 
 # Function to create tables if not exists
-def create_tables(conn):
+def create_tables():
+    conn = create_connection()
     try:
         cur = conn.cursor()
         cur.execute('''CREATE TABLE IF NOT EXISTS SINHVIEN(
@@ -26,44 +27,56 @@ def create_tables(conn):
         cur.execute('''CREATE TABLE IF NOT EXISTS DIEMDANH(
                     MSSV TEXT,
                     THOIGIAN TIMESTAMP,
-                    PRIMARY KEY(MSSV, THOIGIAN),
+                    PRIMARY KEY(MSSV, DATE(THOIGIAN)),
                     FOREIGN KEY(MSSV) REFERENCES SINHVIEN(MSSV)
         )''')
+    except sqlite3.Error as err:
+        messagebox.showerror("Warning", f"{err.sqlite_errorname}")
     finally:
         conn.close()
 
 # Function to insert a student
-def insert_student(conn, MSSV, HOTEN):
+def insert_student(MSSV, HOTEN):
+    conn = create_connection()
     try:
         cur = conn.cursor()
         cur.execute('''INSERT INTO SINHVIEN(MSSV, HOTEN) VALUES (?, ?)''', 
                    (MSSV, HOTEN))
         conn.commit()
         print('Student inserted successfully')
+    except sqlite3.Error as err:
+        messagebox.showerror("Warning", f"{err.sqlite_errorname}")
     finally:
         conn.close()
 
 # Function to retrieve all students
-def get_all_students(conn):
+def get_all_students():
+    conn = create_connection()
     try:
         cur = conn.cursor()
         cur.execute('''SELECT * FROM SINHVIEN''')
         rows = cur.fetchall()
         return rows
+    except sqlite3.Error as err:
+        messagebox.showerror("Warning", f"{err.sqlite_errorname}")
     finally:
         conn.close()
 
 # Function to get student name
-def get_student_name(conn, mssv):
+def get_student_name(mssv):
+    conn = create_connection()
     try:
         cur = conn.cursor()
         cur.execute('''SELECT HOTEN FROM SINHVIEN WHERE MSSV=?''', (mssv,))
         return cur.fetchone()[0]
+    except sqlite3.Error as err:
+        messagebox.showerror("Warning", f"{err.sqlite_errorname}")
     finally:
         conn.close()
         
 # Function to update a student's features
-def update_features(conn, MSSV, features):
+def update_features(MSSV, features):
+    conn = create_connection()
     try: 
         cur = conn.cursor()
         # Serialize the Numpy array to bytes
@@ -73,12 +86,15 @@ def update_features(conn, MSSV, features):
         else:
             messagebox.showinfo("Update face", f'Update thành công - ID: {MSSV}')
         conn.commit()
+    except sqlite3.Error as err:
+        messagebox.showerror("Warning", f"{err.sqlite_errorname}")
     finally:
         conn.close()
 
 # Function to get all student's features:
     
-def get_features(conn):
+def get_features():
+    conn = create_connection()
     try:
         cur = conn.cursor()
         cur.execute('''SELECT MSSV, FEATURES FROM SINHVIEN''')
@@ -90,51 +106,64 @@ def get_features(conn):
                 features_array = np.frombuffer(features_bytes, dtype=np.float32).reshape(1, -1)
                 features_list.append((MSSV, features_array))
         return features_list
+    except sqlite3.Error as err:
+        messagebox.showerror("Warning", f"{err.sqlite_errorname}")
     finally:
         conn.close()
 
-def update_student(conn, MSSV, HOTEN):
+def update_student(MSSV, HOTEN):
+    conn = create_connection()
     try:
         cur = conn.cursor()
         cur.execute('''UPDATE SINHVIEN SET HOTEN=? WHERE MSSV=?''', (HOTEN, MSSV))
         conn.commit()
+    except sqlite3.Error as err:
+        messagebox.showerror("Warning", f"{err.sqlite_errorname}")
     finally:
         conn.close()
 # Function to delete a student
-def delete_student(conn, MSSV):
+def delete_student(MSSV):
+    conn = create_connection()
     try:
         cur = conn.cursor()
         cur.execute('''DELETE FROM SINHVIEN WHERE MSSV=?''', (MSSV,))
         conn.commit()
-        print('Student deleted successfully')
+    except sqlite3.Error as err:
+        messagebox.showerror("Warning", f"{err.sqlite_errorname}")
     finally:
         conn.close()
 
-def insert_attendance_record(conn, MSSV):
+def insert_attendance_record(MSSV):
+    conn = create_connection()
     try:
         cur = conn.cursor()
         cur.execute('''INSERT INTO DIEMDANH(MSSV, THOIGIAN) VALUES (?, ?)''',
-                   (MSSV, datetime.date.today()))
+                   (MSSV, datetime.datetime.now().strftime('%d.%m.%Y %H:%M:%S')))
         conn.commit()
-        print('Attendance record inserted successfully')
+        messagebox.showinfo("Điểm danh", "Điểm danh thành công.")
+    except sqlite3.Error as err:
+        if err.sqlite_errorcode == 1555:
+            messagebox.showwarning("Điểm danh", "Hôm nay bạn đã điểm danh")
     finally:
         conn.close()
 
-def get_attendance_data(conn):
+def get_attendance_data():
+    conn = create_connection()
     try:
         cur = conn.cursor()
-        cur.execute('''SELECT SINHVIEN.HOTEN, SINHVIEN.MSSV, COUNT(DIEMDANH.MSSV) AS Number_of_Attendances
+        cur.execute('''SELECT SINHVIEN.MSSV, SINHVIEN.HOTEN, COUNT(DIEMDANH.MSSV) AS Number_of_Attendances
                            FROM SINHVIEN
                            LEFT JOIN DIEMDANH ON SINHVIEN.MSSV = DIEMDANH.MSSV
                            GROUP BY SINHVIEN.MSSV, SINHVIEN.HOTEN''')
         data = cur.fetchall()
         return data
-    except Exception as ex:
-        print(ex)
+    except sqlite3.Error as err:
+        messagebox.showerror("Warning", f"{err.sqlite_errorname}")
     finally:
         conn.close()
 
-def get_attendance(conn, mssv):
+def get_attendance(mssv):
+    conn = create_connection()
     try:
         cur = conn.cursor()
         cur.execute('''SELECT COUNT(MSSV) AS Number_of_Attendances
@@ -142,5 +171,19 @@ def get_attendance(conn, mssv):
                        WHERE MSSV = ?''', (mssv,))
         data = cur.fetchone()
         return data[0] if data else 0
+    except sqlite3.Error as err:
+        messagebox.showerror("Warning", f"{err.sqlite_errorname}")
+    finally:
+        conn.close()
+
+def get_diemdanh_log():
+    conn = create_connection()
+    try:
+        cur = conn.cursor()
+        cur.execute('''SELECT MSSV, THOIGIAN FROM DIEMDANH GROUP BY MSSV''')
+        data = cur.fetchall()
+        return data
+    except sqlite3.Error as err:
+        messagebox.showerror("Warning", f"{err.sqlite_errorname}")
     finally:
         conn.close()

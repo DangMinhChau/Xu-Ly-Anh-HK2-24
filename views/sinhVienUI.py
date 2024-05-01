@@ -20,7 +20,6 @@ def create_videoCap(deviceId):
 cap, w, h = create_videoCap(0)
 cap.release()
 
-conn_string = config.database_str
 detector = cv.FaceDetectorYN.create(model= f'{config.root_dir}/models/face_detection_yunet_2023mar.onnx', input_size=[w, h], config="", score_threshold=0.92)
 sface = cv.FaceRecognizerSF.create(model=f'{config.root_dir}/models/face_recognition_sface_2021dec.onnx', config="")
 root_project = os.path.dirname(os.path.abspath(__file__))
@@ -28,7 +27,6 @@ root_project = os.path.dirname(os.path.abspath(__file__))
 class SinhVienUI(tk.Frame):
     def __init__(self, master):
         super().__init__(master)
-        self.config(background='blue')
         self.cameraPanel = ttk.Label(self)
         self.menuFrame = ttk.Frame(self)
         self.diemDanh_btn = ttk.Button(self.menuFrame, text='Điểm danh', command=self.attend)
@@ -38,7 +36,7 @@ class SinhVienUI(tk.Frame):
 
         self.mssv = None
         self.features = None
-        self.db_features = db.get_features(db.create_connection(conn_string))
+        self.db_features = db.get_features()
         self.cap = None
         self.isScanning = False
         self.start_scan_thread()
@@ -46,7 +44,7 @@ class SinhVienUI(tk.Frame):
     def display(self):
         self.pack(expand=True, fill=tk.BOTH, side=tk.LEFT, anchor=tk.W)
         self.cameraPanel.pack(side= tk.LEFT, expand=True, fill=tk.BOTH, anchor=tk.W)
-        self.menuFrame.pack(side=tk.RIGHT, expand=True, fill= tk.BOTH, anchor=tk.E)
+        self.menuFrame.pack(side=tk.RIGHT, expand=True, fill= tk.Y, anchor=tk.E)
         self.diemDanh_btn.pack()
         self.dangKy_btn.pack()
         self.xem_btn.pack()
@@ -117,26 +115,24 @@ class SinhVienUI(tk.Frame):
     def attend(self):
         self.isScanning = False
         if self.mssv is not None:
-            studentName = db.get_student_name(db.create_connection(conn_string), self.mssv)
+            studentName = db.get_student_name(self.mssv)
             ans = messagebox.askyesno('Xác nhận', f'Bạn là {studentName} - {self.mssv} ?')
             if ans is True:
-                db.insert_attendance_record(db.create_connection(conn_string), self.mssv)
-                messagebox.showinfo('Điểm danh', 'Điểm danh thành công')
+                db.insert_attendance_record(self.mssv)
         self.isScanning = True
-        
-        
+
     def register(self):
         if self.features is not None:
             self.isScanning = False
             mssv = simpledialog.askstring('Xác nhận đăng ký', 'Vui lòng nhập Mã số sinh viên')
             if mssv is not None:
-                db.update_features(db.create_connection(conn_string), mssv, self.features)
-                self.db_features = db.get_features(db.create_connection(conn_string))
+                db.update_features(mssv, self.features)
+                self.db_features = db.get_features()
             self.isScanning = True
 
     def xem_btn_click(self):
         if self.mssv is not None:
-            date = db.get_attendance(db.create_connection(conn_string), self.mssv)
+            date = db.get_attendance(self.mssv)
             messagebox.showinfo("Điểm danh", f"Số ngày bạn đã điểm danh: {date} ngày.")
         
 
