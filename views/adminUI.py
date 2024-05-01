@@ -21,8 +21,8 @@ class AdminUI(ttk.Frame):
         self.student_tree.heading("HOTEN", text="Họ tên")
         self.student_tree.heading("ATTENDANCES", text="Số ngày điểm danh")
         self.btn_frame = ttk.Frame(self.student_tab)
-        self.add_btn = ttk.Button(self.btn_frame, text="Add Student", command=self.add_student)
-        self.edit_btn = ttk.Button(self.btn_frame, text="Edit Student", command=self.edit_student)
+        self.add_btn = ttk.Button(self.btn_frame, text="Add Student", command=self.add_student_btn_click)
+        self.edit_btn = ttk.Button(self.btn_frame, text="Edit Student", command=self.edit_student_btn_click)
         self.delete_btn = ttk.Button(self.btn_frame, text="Delete Student", command=self.delete_student)
         self.export_danhsach_btn = ttk.Button(self.btn_frame, text="Export List", command=self.export_list_student_to_excel)
         self.export_log_btn = ttk.Button(self.btn_frame, text="Export Log", command=self.export_log_to_excel)
@@ -55,7 +55,7 @@ class AdminUI(ttk.Frame):
         for index, student in enumerate(students, start=1):
             self.student_tree.insert("", "end", text=index, values=student)
 
-    def add_student(self):
+    def add_student_btn_click(self):
         add_window = tk.Toplevel(self.master)
         add_window.title("Add Student")
         window_width = 300  # Set the width of the window
@@ -77,12 +77,12 @@ class AdminUI(ttk.Frame):
         self.name_entry.grid(row=1, column=1, padx=5, pady=5, sticky=tk.NSEW)
 
         # Add Button
-        add_btn = tk.Button(add_window, text="Add", command=self.save_student)
+        add_btn = tk.Button(add_window, text="Add", command=self.save_added_student)
         add_btn.grid(row=2, column=0, pady=10, columnspan=2)
         self.mssv_entry.bind("<Return>", lambda event : self.name_entry.focus())
         self.name_entry.bind("<Return>", lambda event : add_btn.invoke())
 
-    def save_student(self):
+    def save_added_student(self):
         mssv = self.mssv_entry.get()
         name = self.name_entry.get()
 
@@ -94,7 +94,7 @@ class AdminUI(ttk.Frame):
             self.mssv_entry.focus()
         else:
             tk.messagebox.showerror("Error", "Please enter both MSSV and Name.")
-    def edit_student(self):
+    def edit_student_btn_click(self):
         selected_item = self.student_tree.focus()
         if selected_item:
             data = self.student_tree.item(selected_item)['values']
@@ -105,7 +105,6 @@ class AdminUI(ttk.Frame):
             tk.Label(edit_window, text="MSSV:").grid(row=0, column=0, padx=5, pady=5)
             self.edit_mssv_label = ttk.Label(edit_window)
             self.edit_mssv_label.grid(row=0, column=1, padx=5, pady=5)
-            self.edit_mssv_label.config(state=tk.DISABLED)
 
             tk.Label(edit_window, text="Name:").grid(row=1, column=0, padx=5, pady=5)
             self.edit_name_entry = tk.Entry(edit_window)
@@ -113,21 +112,20 @@ class AdminUI(ttk.Frame):
             self.edit_name_entry.focus()
 
             # Populate current data
-            self.edit_mssv_label.config(text=data[0])
+            mssv = data[0]
+            self.edit_mssv_label.config(text=mssv)
             self.edit_name_entry.insert(0, data[1])
 
             # Update Button
-            update_btn = tk.Button(edit_window, text="Update", command=lambda: self.update_student(selected_item))
+            update_btn = tk.Button(edit_window, text="Update", command=lambda: self.update_student(mssv))
             update_btn.grid(row=2, column=0, pady=10, columnspan=2)
             self.edit_name_entry.bind("<Return>", lambda event : (update_btn.invoke(), edit_window.destroy()))
         else:
             tk.messagebox.showerror("Error", "Please select a student to edit.")
 
-    def update_student(self, selected_item):
-        mssv = self.edit_mssv_label.cget("text")
+    def update_student(self, mssv):
         name = self.edit_name_entry.get()
-
-        if mssv and name:
+        if mssv != '' and name != '':
             db.update_student(mssv, name)
             self.load_students()  # Reload student list
         else:
