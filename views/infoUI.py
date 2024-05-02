@@ -10,14 +10,18 @@ class InfoUI(ttk.Frame):
         self.back_btn = ttk.Button(self, text='back', command=lambda: self.master.show_frame(0))
 
     def display(self):
-        self.pack(fill=tk.BOTH, expand=True)
-        self.info_lable.place(relx=0.5, rely=0.5, anchor=tk.CENTER)
-        self.back_btn.pack(side=tk.BOTTOM)
+        self.grid(sticky=tk.NSEW)
+        self.grid_columnconfigure(0, weight=1)
+        self.grid_rowconfigure(0, weight=8)
+        self.grid_rowconfigure(1, weight=1)
+        self.grid_rowconfigure(2, weight=1)
+        self.info_lable.grid(row=0, column=0)
+        self.back_btn.grid(row=2, column=0)
 
     def hide(self):
-        self.pack_forget()
-        self.place_forget()
-        self.back_btn.pack_forget()
+        self.grid_forget()
+        self.grid_forget()
+        self.back_btn.grid_forget()
 
 
 

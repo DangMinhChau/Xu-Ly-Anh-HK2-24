@@ -1,8 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
-import config
-from database import db
+from utils import db
 from tkinter import filedialog
 import pandas as pd
 class AdminUI(ttk.Frame):
@@ -11,43 +10,61 @@ class AdminUI(ttk.Frame):
 
         # Create Notebook (Tab control)
         self.notebook = ttk.Notebook(self)
-        self.notebook.pack(fill=tk.BOTH, expand=True)
         # Add tabs
         self.student_tab = ttk.Frame(self.notebook)
         self.notebook.add(self.student_tab, text="Students")
         self.student_tree = ttk.Treeview(self.student_tab, columns=("MSSV", "HOTEN", "ATTENDANCES"))
-        self.student_tree.heading("#0", text="STT")
-        self.student_tree.heading("MSSV", text="Mã số sinh viên")
-        self.student_tree.heading("HOTEN", text="Họ tên")
-        self.student_tree.heading("ATTENDANCES", text="Số ngày điểm danh")
-        self.btn_frame = ttk.Frame(self.student_tab)
+        self.student_tree.heading("#0", text="STT", anchor='center')
+        self.student_tree.heading("MSSV", text="Mã số sinh viên", anchor='center')
+        self.student_tree.heading("HOTEN", text="Họ tên", anchor='center')
+        self.student_tree.heading("ATTENDANCES", text="Số ngày điểm danh", anchor='center')
+        self.student_tree.column("#0", anchor="center")
+        self.student_tree.column("MSSV", anchor="center")
+        self.student_tree.column("HOTEN", anchor="center")
+        self.student_tree.column("ATTENDANCES", anchor="center")
+        self.btn_frame = ttk.Frame(self)
         self.add_btn = ttk.Button(self.btn_frame, text="Add Student", command=self.add_student_btn_click)
         self.edit_btn = ttk.Button(self.btn_frame, text="Edit Student", command=self.edit_student_btn_click)
         self.delete_btn = ttk.Button(self.btn_frame, text="Delete Student", command=self.delete_student)
         self.export_danhsach_btn = ttk.Button(self.btn_frame, text="Export List", command=self.export_list_student_to_excel)
         self.export_log_btn = ttk.Button(self.btn_frame, text="Export Log", command=self.export_log_to_excel)
         self.back_btn = tk.Button(self.btn_frame, text="Back", command=lambda : self.master.show_frame(0))
+
+        # config grid
+        self.grid_columnconfigure(0, weight=1)
+        self.grid_rowconfigure(0, weight=9)
+        self.grid_rowconfigure(1, weight=1)
+        self.notebook.grid_columnconfigure(0, weight=1)
+        self.notebook.grid_rowconfigure(0, weight=1)
+        self.student_tab.grid_columnconfigure(0, weight=1)
+        self.student_tab.rowconfigure(0, weight=1)
+        for i in [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]:
+            self.btn_frame.grid_columnconfigure(i, weight=1)
+        self.btn_frame.grid_rowconfigure(0, weight=1)
+
+
+        # load student
         self.load_students()
 
     def display(self):
-        self.pack(fill=tk.BOTH, expand=True)
-        self.notebook.pack(fill=tk.BOTH, expand=True)
-        self.student_tab.pack(fill=tk.BOTH, expand=True)
+        self.grid(sticky=tk.NSEW)
+        self.notebook.grid(row=0, column=0, sticky=tk.NSEW)
+        self.student_tab.grid(row=0, column=0, sticky=tk.NSEW)
         # Student table
-        self.student_tree.pack(fill=tk.BOTH, expand=True)
+        self.student_tree.grid(row=0, column=0, sticky=tk.NSEW)
         # Buttons
-        self.btn_frame.pack(pady=10)
-        self.add_btn.pack(side=tk.LEFT, padx=5)
-        self.edit_btn.pack(side=tk.LEFT, padx=5)
-        self.delete_btn.pack(side=tk.LEFT, padx=5)
-        self.export_danhsach_btn.pack(side=tk.LEFT, padx=5)
-        self.export_log_btn.pack(side=tk.LEFT, padx=5)
-        self.back_btn.pack(side=tk.LEFT, padx=5)
+        self.btn_frame.grid(row=1, column=0, sticky=tk.NSEW)
+        self.add_btn.grid(row=0, column=3)
+        self.edit_btn.grid(row=0, column=4)
+        self.delete_btn.grid(row=0, column=5)
+        self.export_danhsach_btn.grid(row=0, column=6)
+        self.export_log_btn.grid(row=0, column=7)
+        self.back_btn.grid(row=0, column=10)
         self.load_students()
 
     def hide(self):
         for w in (self, self.notebook, self.student_tab, self.student_tree, self.student_tree, self.btn_frame, self.add_btn, self.edit_btn, self.delete_btn, self.export_danhsach_btn, self.export_log_btn, self.back_btn):
-            w.pack_forget()
+            w.grid_forget()
 
     def load_students(self):
         self.student_tree.delete(*self.student_tree.get_children())  # Clear existing data
@@ -58,8 +75,8 @@ class AdminUI(ttk.Frame):
     def add_student_btn_click(self):
         add_window = tk.Toplevel(self.master)
         add_window.title("Add Student")
-        window_width = 300  # Set the width of the window
-        window_height = 150  # Set the height of the window
+        window_width = 200  # Set the width of the window
+        window_height = 110  # Set the height of the window
         screen_width = add_window.winfo_screenwidth()
         screen_height = add_window.winfo_screenheight()
         x = (screen_width - window_width) // 2
@@ -100,6 +117,13 @@ class AdminUI(ttk.Frame):
             data = self.student_tree.item(selected_item)['values']
             edit_window = tk.Toplevel(self.master)
             edit_window.title("Edit Student")
+            window_width = 200  # Set the width of the window
+            window_height = 110  # Set the height of the window
+            screen_width = edit_window.winfo_screenwidth()
+            screen_height = edit_window.winfo_screenheight()
+            x = (screen_width - window_width) // 2
+            y = (screen_height - window_height) // 2
+            edit_window.geometry(f"{window_width}x{window_height}+{x}+{y}")
 
             # Labels and Entries
             tk.Label(edit_window, text="MSSV:").grid(row=0, column=0, padx=5, pady=5)
@@ -155,7 +179,7 @@ class AdminUI(ttk.Frame):
         file_path = filedialog.asksaveasfilename(defaultextension=".xlsx", filetypes=[("Excel files", "*.xlsx")])
         if file_path != "":
             data = db.get_diemdanh_log()
-            df = pd.DataFrame(data, columns=["MSSV", "THOIGIAN"])
+            df = pd.DataFrame(data, columns=["MSSV", "DATE", "TIME"])
             df.to_excel(file_path, index=False)
             messagebox.showinfo("Export", "Exported Successfully.")
 

@@ -1,20 +1,21 @@
-import cv2 as cv
 import numpy as np
+from PIL import Image, ImageDraw, ImageFont
+
+font = ImageFont.truetype('arial.ttf', size=14)
 
 def visualize(image, face, text, box_color=(0, 255, 0), text_color=(0, 0, 255)):
-    output = image.copy()
+    output = Image.fromarray(image)  # Convert OpenCV image to PIL format
+    draw = ImageDraw.Draw(output)
     if face is not None:
         bbox = face[0:4].astype(np.int32)
-        cv.rectangle(output, (bbox[0], bbox[1]), (bbox[0]+bbox[2], bbox[1]+bbox[3]), box_color, 2)
-        cv.putText(output, '{}'.format(text), (bbox[0], bbox[1]-15), cv.FONT_HERSHEY_DUPLEX, 0.5, text_color)
-    return output
+        draw.rectangle([(bbox[0], bbox[1]), (bbox[0] + bbox[2], bbox[1] + bbox[3])], outline=box_color, width=2)
+        draw.text((bbox[0], bbox[1] - 15), text, fill=text_color, font=font)
+    return np.array(output)
 
 
 def detect_face(detector, sface, image):
     detections = detector.detect(image)
     faces = np.array([]) if detections[1] is None else detections[1]
-    detected_face = None
-    score = 0
     if(faces.size != 0):
         detected_face = faces[0][:-1]
         score = faces[0][-1]
@@ -25,8 +26,10 @@ def detect_face(detector, sface, image):
      
 def match_face(sface, features1, features2):
     isMatched = False
-    score = sface.match(features1, features2, 0)
-    if score >= 0.6:
+    score1 = sface.match(features1, features2, 0)
+    score2 = sface.match(features1, features2, 1)
+    #print(score1, score2)
+    if score1 >0.5:
         isMatched = True
     return isMatched
     

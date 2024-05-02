@@ -3,27 +3,42 @@ from tkinter import ttk, messagebox, simpledialog
 
 import config
 
-
-class HomeUI(ttk.Frame):
+class HomeUI(tk.Frame):
     def __init__(self, master):
         super().__init__(master)
         self.panel = ttk.Label(self, text='Welcome')
-        self.sinhvien_btn = ttk.Button(self, text='Sinh Viên', command=lambda: self.button_click(1))
-        self.admin_btn = ttk.Button(self, text='Admin', command=self.admin_btn_click)
-        self.info_btn = ttk.Button(self, text='Thông tin', command=lambda: self.button_click(3))
-        self.exit_btn = ttk.Button(self, text="Thoát", command=self.exit)
+        self.buttons_frame = tk.Frame(self)
+        self.sinhvien_btn = ttk.Button(self.buttons_frame, text='Sinh Viên', command=lambda: self.button_click(1))
+        self.admin_btn = ttk.Button(self.buttons_frame, text='Admin', command=self.admin_btn_click)
+        self.info_btn = ttk.Button(self.buttons_frame, text='Thông tin', command=lambda: self.button_click(3))
+        self.exit_btn = ttk.Button(self.buttons_frame, text="Thoát", command=self.exit)
+
+        # config grid
+        self.grid(row=0, column=0, sticky=tk.NSEW)
+        self.grid_columnconfigure(0, weight=1)
+        self.grid_rowconfigure(0, weight=1)
+        self.grid_rowconfigure(1, weight=9)
+        self.buttons_frame.grid_columnconfigure(0, weight=1)
+        for i in [0, 1, 2, 3, 4, 5, 6]:
+            self.buttons_frame.grid_rowconfigure(i, weight=1)
+
     
     def display(self):
-        self.pack(expand=True, fill=tk.BOTH, side=tk.TOP, anchor=tk.CENTER)
-        self.panel.pack()
-        self.sinhvien_btn.pack()
-        self.admin_btn.pack()
-        self.info_btn.pack()
-        self.exit_btn.pack()
-    
+        self.grid(row=0, column=0, sticky=tk.NSEW)
+        self.grid_columnconfigure(0, weight=1)
+        self.grid_rowconfigure(0, weight=1)
+        self.grid_rowconfigure(1, weight=9)
+        self.panel.grid(row=0, column=0)
+
+        self.buttons_frame.grid(row=1, column=0, sticky=tk.NSEW)
+        self.sinhvien_btn.grid(row=1, sticky=tk.NSEW)
+        self.admin_btn.grid(row=2, sticky=tk.NSEW)
+        self.info_btn.grid(row=3, sticky=tk.NSEW)
+        self.exit_btn.grid(row=6)
+
     def hide(self):
-        for w in (self, self.panel, self.sinhvien_btn, self.admin_btn, self.info_btn, self.exit_btn):
-            w.pack_forget()
+        for w in (self,  self.panel, self.buttons_frame, self.sinhvien_btn, self.admin_btn, self.info_btn, self.exit_btn):
+            w.grid_forget()
         
     def button_click(self, frameName):
         self.master.show_frame(frameName)

@@ -1,33 +1,19 @@
 from tkinter import ttk
 import tkinter as tk
-from tkinter import messagebox
-from tkinter import simpledialog
+from tkinter import messagebox, simpledialog
 from PIL import Image, ImageTk
 import cv2 as cv
 from utils.face import detect_face, match_face, visualize
-from database import db
-import os
+from utils import db
 import config
 import threading
 import time
 
-def create_videoCap(deviceId):
-    cap = cv.VideoCapture(deviceId)
-    w = int(cap.get(cv.CAP_PROP_FRAME_WIDTH))
-    h = int(cap.get(cv.CAP_PROP_FRAME_HEIGHT))
-    return (cap, w, h)
-
-cap, w, h = create_videoCap(0)
-cap.release()
-
-detector = cv.FaceDetectorYN.create(model= f'{config.root_dir}/models/face_detection_yunet_2023mar.onnx', input_size=[w, h], config="", score_threshold=0.92)
-sface = cv.FaceRecognizerSF.create(model=f'{config.root_dir}/models/face_recognition_sface_2021dec.onnx', config="")
-root_project = os.path.dirname(os.path.abspath(__file__))
 
 class SinhVienUI(tk.Frame):
     def __init__(self, master):
         super().__init__(master)
-        self.cameraPanel = ttk.Label(self)
+        self.cameraCanvas = tk.Canvas(self)
         self.menuFrame = ttk.Frame(self)
         self.diemDanh_btn = ttk.Button(self.menuFrame, text='Điểm danh', command=self.attend)
         self.dangKy_btn = ttk.Button(self.menuFrame, text='Đăng ký', command=self.register)
@@ -39,32 +25,43 @@ class SinhVienUI(tk.Frame):
         self.db_features = db.get_features()
         self.cap = None
         self.isScanning = False
+        self.detector = cv.FaceDetectorYN.create(model=f'{config.root_dir}/models/face_detection_yunet_2023mar.onnx',
+                                                 input_size=[640, 480], config="", score_threshold=0.7)
+        self.sface = cv.FaceRecognizerSF.create(model=f'{config.root_dir}/models/face_recognition_sface_2021dec.onnx',
+                                                config="")
+
+        # grid config
+        self.grid_columnconfigure(0, weight=8)
+        self.grid_columnconfigure(1, weight=2)
+        self.grid_rowconfigure(0, weight=1)
+        for i in range(0, 6):
+            self.menuFrame.rowconfigure(i, weight=1)
+        self.menuFrame.grid_columnconfigure(0, weight=1)
+
+        # create thread for scanning
         self.start_scan_thread()
-        
+
     def display(self):
-        self.pack(expand=True, fill=tk.BOTH, side=tk.LEFT, anchor=tk.W)
-        self.cameraPanel.pack(side= tk.LEFT, expand=True, fill=tk.BOTH, anchor=tk.W)
-        self.menuFrame.pack(side=tk.RIGHT, expand=True, fill= tk.Y, anchor=tk.E)
-        self.diemDanh_btn.pack()
-        self.dangKy_btn.pack()
-        self.xem_btn.pack()
-        self.back_btn.pack()
+        self.grid(sticky=tk.NSEW)
+        self.cameraCanvas.grid(row=0, column=0, sticky=tk.NSEW)
+        self.menuFrame.grid(row=0, column=1, sticky=tk.NSEW)
+        self.diemDanh_btn.grid(row=0, sticky=tk.NSEW)
+        self.dangKy_btn.grid(row=1, sticky=tk.NSEW)
+        self.xem_btn.grid(row=2, sticky=tk.NSEW)
+        self.back_btn.grid(row=5, sticky=tk.NSEW)
         self.cap = cv.VideoCapture(0)
-        while True:
-            if self.cap.isOpened():
-                self.isScanning = True
-                break
-    
+        self.isScanning = True
+
     def hide(self):
-        for w in (self, self.cameraPanel, self.menuFrame, self.diemDanh_btn, self.dangKy_btn, self.xem_btn, self.back_btn):
-            w.pack_forget()
+        for w in (self, self.cameraCanvas, self.menuFrame, self.diemDanh_btn, self.dangKy_btn, self.xem_btn, self.back_btn):
+            w.grid_forget()
         self.isScanning = False
         self.cap.release()
-        
+
     def resize_image(self, image):
         # Lấy kích thước hiện tại của cameraPanel
-        panel_width = self.cameraPanel.winfo_width()
-        panel_height = self.cameraPanel.winfo_height()
+        panel_width = self.cameraCanvas.winfo_width()
+        panel_height = self.cameraCanvas.winfo_height()
 
         # Tính toán kích thước mới của hình ảnh dựa trên kích thước của cameraPanel
         aspect_ratio = image.width / image.height
@@ -86,20 +83,19 @@ class SinhVienUI(tk.Frame):
     def scan(self):
         while True:
             while self.isScanning:
-                ret = False
                 ret, img = self.cap.read()
                 text = "None"
                 if ret:
-                    detections = detect_face(detector, sface, img)
+                    detections = detect_face(self.detector, self.sface, img)
                     image_with_boxes = cv.cvtColor(img, cv.COLOR_BGR2RGB)
                     if detections is not None:
                         detected_face, self.features, _ = detections
                         self.mssv = None
-                        for id, db_features in self.db_features:
-                            is_matched = match_face(sface, self.features, db_features)
+                        for id, name, db_features in self.db_features:
+                            is_matched = match_face(self.sface, self.features, db_features)
                             if is_matched:
                                 self.mssv = id
-                                text = id
+                                text = f"{self.mssv} - {name}"
                         image_with_boxes = visualize(image_with_boxes, detected_face, text)
                     else:
                         self.features = None
@@ -107,8 +103,8 @@ class SinhVienUI(tk.Frame):
                     image_with_boxes = Image.fromarray(image_with_boxes)
                     image_with_boxes = self.resize_image(image_with_boxes)
                     imgTk = ImageTk.PhotoImage(image=image_with_boxes)
-                    self.cameraPanel.config(image=imgTk)
-                    self.cameraPanel.image = imgTk
+                    self.cameraCanvas.create_image(0, 0, image=imgTk, anchor=tk.NW)
+                    self.cameraCanvas.image = imgTk
                 time.sleep(0.01)
             time.sleep(1)
         

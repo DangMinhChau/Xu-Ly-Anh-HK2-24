@@ -26,8 +26,9 @@ def create_tables():
 
         cur.execute('''CREATE TABLE IF NOT EXISTS DIEMDANH(
                     MSSV TEXT,
-                    THOIGIAN TIMESTAMP,
-                    PRIMARY KEY(MSSV, DATE(THOIGIAN)),
+                    DATE TEXT,
+                    TIME TEXT,
+                    PRIMARY KEY(MSSV, DATE),
                     FOREIGN KEY(MSSV) REFERENCES SINHVIEN(MSSV)
         )''')
     except sqlite3.Error as err:
@@ -97,14 +98,14 @@ def get_features():
     conn = create_connection()
     try:
         cur = conn.cursor()
-        cur.execute('''SELECT MSSV, FEATURES FROM SINHVIEN''')
+        cur.execute('''SELECT * FROM SINHVIEN''')
         rows = cur.fetchall()
         features_list = []
         for row in rows:
-            MSSV, features_bytes = row
+            MSSV, HOTEN, features_bytes = row
             if features_bytes is not None:
                 features_array = np.frombuffer(features_bytes, dtype=np.float32).reshape(1, -1)
-                features_list.append((MSSV, features_array))
+                features_list.append((MSSV, HOTEN, features_array))
         return features_list
     except sqlite3.Error as err:
         messagebox.showerror("Warning", f"{err.sqlite_errorname}")
@@ -137,8 +138,8 @@ def insert_attendance_record(MSSV):
     conn = create_connection()
     try:
         cur = conn.cursor()
-        cur.execute('''INSERT INTO DIEMDANH(MSSV, THOIGIAN) VALUES (?, ?)''',
-                   (MSSV, datetime.datetime.now().strftime('%d.%m.%Y %H:%M:%S')))
+        cur.execute('''INSERT INTO DIEMDANH(MSSV, DATE, TIME) VALUES (?, ?, ?)''',
+                   (MSSV, datetime.date.today().strftime('%d-%m-%Y'), datetime.datetime.now().time().strftime('%H:%M:%S')))
         conn.commit()
         messagebox.showinfo("Điểm danh", "Điểm danh thành công.")
     except sqlite3.Error as err:
@@ -180,7 +181,7 @@ def get_diemdanh_log():
     conn = create_connection()
     try:
         cur = conn.cursor()
-        cur.execute('''SELECT MSSV, THOIGIAN FROM DIEMDANH GROUP BY MSSV''')
+        cur.execute('''SELECT MSSV, DATE, TIME FROM DIEMDANH ORDER BY MSSV''')
         data = cur.fetchall()
         return data
     except sqlite3.Error as err:
