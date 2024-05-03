@@ -4,7 +4,7 @@ from tkinter import messagebox
 from utils import db
 from tkinter import filedialog
 import pandas as pd
-class AdminUI(ttk.Frame):
+class GiangVienUI(ttk.Frame):
     def __init__(self, master):
         super().__init__(master)
 
@@ -24,12 +24,12 @@ class AdminUI(ttk.Frame):
         self.student_tree.column("ATTENDANCES", anchor="center")
         self.student_tree.column("#0", width=0, stretch="no")
         self.btn_frame = ttk.Frame(self)
-        self.add_btn = ttk.Button(self.btn_frame, text="Add Student", style="Admin.TButton", takefocus=False, command=self.add_student_btn_click)
-        self.edit_btn = ttk.Button(self.btn_frame, text="Edit Student", style="Admin.TButton", takefocus=False, command=self.edit_student_btn_click)
-        self.delete_btn = ttk.Button(self.btn_frame, text="Delete Student", style="Admin.TButton", takefocus=False, command=self.delete_student)
-        self.export_danhsach_btn = ttk.Button(self.btn_frame, text="Export List", style="Admin.TButton", takefocus=False, command=self.export_list_student_to_excel)
-        self.export_log_btn = ttk.Button(self.btn_frame, text="Export Log", style="Admin.TButton", takefocus=False, command=self.export_log_to_excel)
-        self.back_btn = ttk.Button(self.btn_frame, text="Back", style="Admin.TButton", takefocus=False, command=lambda : self.master.show_frame(0))
+        self.add_btn = ttk.Button(self.btn_frame, text="Add Student", style="GiangVien.TButton", takefocus=False, command=self.add_student_btn_click)
+        self.edit_btn = ttk.Button(self.btn_frame, text="Edit Student", style="GiangVien.TButton", takefocus=False, command=self.edit_student_btn_click)
+        self.delete_btn = ttk.Button(self.btn_frame, text="Delete Student", style="GiangVien.TButton", takefocus=False, command=self.delete_student)
+        self.export_danhsach_btn = ttk.Button(self.btn_frame, text="Export List", style="GiangVien.TButton", takefocus=False, command=self.export_list_student_to_excel)
+        self.export_log_btn = ttk.Button(self.btn_frame, text="Export Log", style="GiangVien.TButton", takefocus=False, command=self.export_log_to_excel)
+        self.back_btn = ttk.Button(self.btn_frame, text="Back", style="GiangVien.TButton", takefocus=False, command=lambda : self.master.show_frame(0))
 
         # config grid
         self.grid_columnconfigure(0, weight=1)

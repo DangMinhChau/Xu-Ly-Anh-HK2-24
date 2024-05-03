@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 from .sinhVienUI import SinhVienUI
 from .homeUI import HomeUI
-from .adminUI import AdminUI
+from .giangVienUI import GiangVienUI
 from .infoUI import InfoUI
 class App(tk.Tk):
     def __init__(self):
@@ -28,7 +28,7 @@ class App(tk.Tk):
         self.currentFrame.display()
     
     def create_frame(self):
-        for F in (HomeUI, SinhVienUI, AdminUI, InfoUI):
+        for F in (HomeUI, SinhVienUI, GiangVienUI, InfoUI):
             self.frames.append(F(self))
 
     def create_style(self):
@@ -40,8 +40,8 @@ class App(tk.Tk):
         self.style.configure("SinhVienButton.TButton", background=main_color, borderwidth=0, font=("Arial", 18, "bold"), foreground='#378CE7')
         self.style.map("SinhVienButton.TButton", background=[('active', main_color)], foreground=[('active', '#67C6E3')])
 
-        self.style.configure("Admin.TButton", background = "#378CE7", foreground = "white")
-        self.style.map("Admin.TButton", background=[('active', '#378CE7')], foreground=[('active', '#67C6E3')])
+        self.style.configure("GiangVien.TButton", background = "#378CE7", foreground = "white")
+        self.style.map("GiangVien.TButton", background=[('active', '#378CE7')], foreground=[('active', '#67C6E3')])
 
         self.style.configure("Back.TButton", background=main_color, borderwidth=0, font=("Arial", 20), foreground='#378CE7')
         self.style.map("Back.TButton", background=[('active', main_color)], foreground=[('active', '#FF204E')])

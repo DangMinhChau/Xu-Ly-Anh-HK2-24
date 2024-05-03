@@ -9,8 +9,8 @@ class HomeUI(ttk.Frame):
         self.style = ttk.Style(self)
         self.panel = tk.Label(self, text='HCMUTE', background="#DFF5FF", foreground="#FF204E", font=("Arial", 40, "bold"))
         self.buttons_frame = ttk.Frame(self)
-        self.sinhvien_btn = ttk.Button(self.buttons_frame, text='Sinh Viên', style="HomeButton.TButton", takefocus=False, command=lambda: self.button_click(1))
-        self.admin_btn = ttk.Button(self.buttons_frame, text='Admin', style="HomeButton.TButton", takefocus=False, command=self.admin_btn_click)
+        self.sinhvien_btn = ttk.Button(self.buttons_frame, text='Sinh viên', style="HomeButton.TButton", takefocus=False, command=lambda: self.button_click(1))
+        self.admin_btn = ttk.Button(self.buttons_frame, text='Giảng viên', style="HomeButton.TButton", takefocus=False, command=self.admin_btn_click)
         self.info_btn = ttk.Button(self.buttons_frame, text='Thông tin', style="HomeButton.TButton", takefocus=False, command=lambda: self.button_click(3))
         self.exit_btn = ttk.Button(self.buttons_frame, text="Thoát", style="Back.TButton", takefocus=False, command=self.exit)
 
@@ -45,9 +45,11 @@ class HomeUI(ttk.Frame):
         self.master.show_frame(frameName)
 
     def admin_btn_click(self):
-        password = simpledialog.askstring("Admin Password", "Enter your password", show="*")
+        password = simpledialog.askstring("Password", "Enter your password", show="*")
         if password == config.admin_password:
             self.master.show_frame(2)
+        else:
+            messagebox.showwarning("Warning", "Password is incorrect")
 
     def exit(self):
         ans = messagebox.askyesno("Thoát", "Bạn có muốn đóng ứng dụng không?")
