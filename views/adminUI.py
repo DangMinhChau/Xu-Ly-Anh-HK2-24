@@ -14,21 +14,22 @@ class AdminUI(ttk.Frame):
         self.student_tab = ttk.Frame(self.notebook)
         self.notebook.add(self.student_tab, text="Students")
         self.student_tree = ttk.Treeview(self.student_tab, columns=("MSSV", "HOTEN", "ATTENDANCES"))
-        self.student_tree.heading("#0", text="STT", anchor='center')
+        #self.student_tree.heading("#0", text="STT", anchor='center')
         self.student_tree.heading("MSSV", text="Mã số sinh viên", anchor='center')
         self.student_tree.heading("HOTEN", text="Họ tên", anchor='center')
         self.student_tree.heading("ATTENDANCES", text="Số ngày điểm danh", anchor='center')
-        self.student_tree.column("#0", anchor="center")
+        #self.student_tree.column("#0", anchor="center")
         self.student_tree.column("MSSV", anchor="center")
         self.student_tree.column("HOTEN", anchor="center")
         self.student_tree.column("ATTENDANCES", anchor="center")
+        self.student_tree.column("#0", width=0, stretch="no")
         self.btn_frame = ttk.Frame(self)
-        self.add_btn = ttk.Button(self.btn_frame, text="Add Student", command=self.add_student_btn_click)
-        self.edit_btn = ttk.Button(self.btn_frame, text="Edit Student", command=self.edit_student_btn_click)
-        self.delete_btn = ttk.Button(self.btn_frame, text="Delete Student", command=self.delete_student)
-        self.export_danhsach_btn = ttk.Button(self.btn_frame, text="Export List", command=self.export_list_student_to_excel)
-        self.export_log_btn = ttk.Button(self.btn_frame, text="Export Log", command=self.export_log_to_excel)
-        self.back_btn = tk.Button(self.btn_frame, text="Back", command=lambda : self.master.show_frame(0))
+        self.add_btn = ttk.Button(self.btn_frame, text="Add Student", style="Admin.TButton", takefocus=False, command=self.add_student_btn_click)
+        self.edit_btn = ttk.Button(self.btn_frame, text="Edit Student", style="Admin.TButton", takefocus=False, command=self.edit_student_btn_click)
+        self.delete_btn = ttk.Button(self.btn_frame, text="Delete Student", style="Admin.TButton", takefocus=False, command=self.delete_student)
+        self.export_danhsach_btn = ttk.Button(self.btn_frame, text="Export List", style="Admin.TButton", takefocus=False, command=self.export_list_student_to_excel)
+        self.export_log_btn = ttk.Button(self.btn_frame, text="Export Log", style="Admin.TButton", takefocus=False, command=self.export_log_to_excel)
+        self.back_btn = ttk.Button(self.btn_frame, text="Back", style="Admin.TButton", takefocus=False, command=lambda : self.master.show_frame(0))
 
         # config grid
         self.grid_columnconfigure(0, weight=1)
@@ -38,13 +39,9 @@ class AdminUI(ttk.Frame):
         self.notebook.grid_rowconfigure(0, weight=1)
         self.student_tab.grid_columnconfigure(0, weight=1)
         self.student_tab.rowconfigure(0, weight=1)
-        for i in [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]:
+        for i in range(0, 11):
             self.btn_frame.grid_columnconfigure(i, weight=1)
         self.btn_frame.grid_rowconfigure(0, weight=1)
-
-
-        # load student
-        self.load_students()
 
     def display(self):
         self.grid(sticky=tk.NSEW)
@@ -63,14 +60,14 @@ class AdminUI(ttk.Frame):
         self.load_students()
 
     def hide(self):
-        for w in (self, self.notebook, self.student_tab, self.student_tree, self.student_tree, self.btn_frame, self.add_btn, self.edit_btn, self.delete_btn, self.export_danhsach_btn, self.export_log_btn, self.back_btn):
+        for w in (self, self.notebook, self.student_tab, self.student_tree, self.btn_frame, self.add_btn, self.edit_btn, self.delete_btn, self.export_danhsach_btn, self.export_log_btn, self.back_btn):
             w.grid_forget()
 
     def load_students(self):
         self.student_tree.delete(*self.student_tree.get_children())  # Clear existing data
         students = db.get_attendance_data()
-        for index, student in enumerate(students, start=1):
-            self.student_tree.insert("", "end", text=index, values=student)
+        for student in students:
+            self.student_tree.insert('', 'end', values=student)
 
     def add_student_btn_click(self):
         add_window = tk.Toplevel(self.master)

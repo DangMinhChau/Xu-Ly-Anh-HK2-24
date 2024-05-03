@@ -3,15 +3,16 @@ from tkinter import ttk, messagebox, simpledialog
 
 import config
 
-class HomeUI(tk.Frame):
+class HomeUI(ttk.Frame):
     def __init__(self, master):
         super().__init__(master)
-        self.panel = ttk.Label(self, text='Welcome')
-        self.buttons_frame = tk.Frame(self)
-        self.sinhvien_btn = ttk.Button(self.buttons_frame, text='Sinh Viên', command=lambda: self.button_click(1))
-        self.admin_btn = ttk.Button(self.buttons_frame, text='Admin', command=self.admin_btn_click)
-        self.info_btn = ttk.Button(self.buttons_frame, text='Thông tin', command=lambda: self.button_click(3))
-        self.exit_btn = ttk.Button(self.buttons_frame, text="Thoát", command=self.exit)
+        self.style = ttk.Style(self)
+        self.panel = tk.Label(self, text='HCMUTE', background="#DFF5FF", foreground="#FF204E", font=("Arial", 40, "bold"))
+        self.buttons_frame = ttk.Frame(self)
+        self.sinhvien_btn = ttk.Button(self.buttons_frame, text='Sinh Viên', style="HomeButton.TButton", takefocus=False, command=lambda: self.button_click(1))
+        self.admin_btn = ttk.Button(self.buttons_frame, text='Admin', style="HomeButton.TButton", takefocus=False, command=self.admin_btn_click)
+        self.info_btn = ttk.Button(self.buttons_frame, text='Thông tin', style="HomeButton.TButton", takefocus=False, command=lambda: self.button_click(3))
+        self.exit_btn = ttk.Button(self.buttons_frame, text="Thoát", style="Back.TButton", takefocus=False, command=self.exit)
 
         # config grid
         self.grid(row=0, column=0, sticky=tk.NSEW)
@@ -19,7 +20,7 @@ class HomeUI(tk.Frame):
         self.grid_rowconfigure(0, weight=1)
         self.grid_rowconfigure(1, weight=9)
         self.buttons_frame.grid_columnconfigure(0, weight=1)
-        for i in [0, 1, 2, 3, 4, 5, 6]:
+        for i in range(0, 7):
             self.buttons_frame.grid_rowconfigure(i, weight=1)
 
     

@@ -13,12 +13,12 @@ import time
 class SinhVienUI(tk.Frame):
     def __init__(self, master):
         super().__init__(master)
-        self.cameraCanvas = tk.Canvas(self)
+        self.cameraCanvas = tk.Canvas(self, background="#DFF5FF")
         self.menuFrame = ttk.Frame(self)
-        self.diemDanh_btn = ttk.Button(self.menuFrame, text='Điểm danh', command=self.attend)
-        self.dangKy_btn = ttk.Button(self.menuFrame, text='Đăng ký', command=self.register)
-        self.xem_btn = ttk.Button(self.menuFrame, text= 'Số ngày điểm danh', command=self.xem_btn_click)
-        self.back_btn = ttk.Button(self.menuFrame, text="Quay lại", command=lambda: self.master.show_frame(0))
+        self.diemDanh_btn = ttk.Button(self.menuFrame, text='Điểm danh', style="SinhVienButton.TButton", takefocus=False, command=self.attend)
+        self.dangKy_btn = ttk.Button(self.menuFrame, text='Đăng ký', style="SinhVienButton.TButton", takefocus=False, command=self.register)
+        self.xem_btn = ttk.Button(self.menuFrame, text= 'Số ngày điểm danh', style="SinhVienButton.TButton", takefocus=False, command=self.xem_btn_click)
+        self.back_btn = ttk.Button(self.menuFrame, text="Quay lại", style="SinhVienButton.TButton", takefocus=False, command=lambda: self.master.show_frame(0))
 
         self.mssv = None
         self.features = None
