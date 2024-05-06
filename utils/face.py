@@ -26,10 +26,8 @@ def detect_face(detector, sface, image):
      
 def match_face(sface, features1, features2):
     isMatched = False
-    score1 = sface.match(features1, features2, 0)
-    score2 = sface.match(features1, features2, 1)
-    #print(score1, score2)
-    if score1 >0.5:
+    score = sface.match(features1, features2, 0)
+    if score >=0.363:
         isMatched = True
     return isMatched
     

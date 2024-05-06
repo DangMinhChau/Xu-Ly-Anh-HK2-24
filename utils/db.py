@@ -3,6 +3,7 @@ import numpy as np
 import datetime
 import config
 from tkinter import messagebox
+
 # Function to create database connection
 def create_connection():
     conn = None
@@ -44,7 +45,6 @@ def insert_student(MSSV, HOTEN):
         cur.execute('''INSERT INTO SINHVIEN(MSSV, HOTEN) VALUES (?, ?)''', 
                    (MSSV, HOTEN))
         conn.commit()
-        print('Student inserted successfully')
     except sqlite3.Error as err:
         messagebox.showerror("Warning", f"{err.sqlite_errorname}")
     finally:
@@ -78,10 +78,12 @@ def get_student_name(mssv):
 # Function to update a student's features
 def update_features(MSSV, features):
     conn = create_connection()
+    MSSV = str(MSSV)
     try: 
         cur = conn.cursor()
         # Serialize the Numpy array to bytes
         cur.execute('''UPDATE SINHVIEN SET FEATURES=? WHERE MSSV=?''', (features.tobytes(), MSSV))
+        print(cur.rowcount)
         if cur.rowcount == 0:
             messagebox.showerror("Error", "ID không tồn tại.")
         else:

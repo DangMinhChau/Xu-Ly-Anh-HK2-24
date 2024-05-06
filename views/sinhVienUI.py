@@ -50,6 +50,7 @@ class SinhVienUI(tk.Frame):
         self.xem_btn.grid(row=2, sticky=tk.NSEW)
         self.back_btn.grid(row=5, sticky=tk.NSEW)
         self.cap = cv.VideoCapture(0)
+        self.db_features = db.get_features()
         self.isScanning = True
 
     def hide(self):
@@ -121,7 +122,7 @@ class SinhVienUI(tk.Frame):
         if self.features is not None:
             self.isScanning = False
             mssv = simpledialog.askstring('Xác nhận đăng ký', 'Vui lòng nhập Mã số sinh viên')
-            if mssv is not None:
+            if mssv !="":
                 db.update_features(mssv, self.features)
                 self.db_features = db.get_features()
             self.isScanning = True
