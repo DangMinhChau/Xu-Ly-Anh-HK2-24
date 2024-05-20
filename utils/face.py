@@ -15,19 +15,21 @@ def visualize(image, face, text, box_color=(0, 255, 0), text_color=(0, 0, 255)):
 
 def detect_face(detector, sface, image):
     detections = detector.detect(image)
-    faces = np.array([]) if detections[1] is None else detections[1]
-    if(faces.size != 0):
-        detected_face = faces[0][:-1]
-        score = faces[0][-1]
-        aligned_face = sface.alignCrop(image, detected_face)
-        detected_face_features = sface.feature(aligned_face)
-        return (detected_face, detected_face_features, score)
-    return None
+    faces = []
+    if detections[0] > 0 and detections[1] is not None:
+        for face in detections[1]:
+            aligned_face = sface.alignCrop(image, face[:-1])
+            face_features = sface.feature(aligned_face)
+            faces.append((face, face_features))
+        return faces
+    else:
+        return None
      
 def match_face(sface, features1, features2):
     isMatched = False
-    score = sface.match(features1, features2, 0)
-    if score >=0.363:
+    score = sface.match(features1, features2)
+    print(score)
+    if score >=0.5:
         isMatched = True
-    return isMatched
+    return (isMatched, score)
     
